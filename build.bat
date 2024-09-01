@@ -10,7 +10,7 @@ exit
 
 :BuildFlutter
 (
-    call flutter build web --release --web-renderer html
+    call flutter build web --release --web-renderer html --source-maps
     @REM call flutter build web
     exit /b
 )
