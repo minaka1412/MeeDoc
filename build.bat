@@ -10,7 +10,8 @@ exit
 
 :BuildFlutter
 (
-    call flutter build web
+    call flutter build web --release --web-renderer html
+    @REM call flutter build web
     exit /b
 )
 
@@ -22,6 +23,7 @@ exit
 
 :deploy
 (
+    rmdir docs /s /q
     move build/web docs
     exit /b
 )

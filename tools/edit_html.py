@@ -4,7 +4,7 @@ import sys
 args = sys.argv
 
 BEFORE_STRING: str = "  <base href=\"/\">"
-AFTER_STRING: str = "  <base href=\"/meedoc/\">"
+AFTER_STRING: str = "  <base href=\"/MeeDoc/\">"
 
 def main():
     file_path: str = args[1]
