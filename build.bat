@@ -21,7 +21,7 @@ exit
     exit /b
 )
 
-:deploy
+:Deploy
 (
     rmdir docs /s /q
     move build/web docs
@@ -32,6 +32,6 @@ exit
 (
     call :BuildFlutter
     call :EditHTML
-    call :deploy
+    call :Deploy
     exit /b
 )
