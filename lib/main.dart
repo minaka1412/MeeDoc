@@ -19,9 +19,26 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => MyAppState();
 }
 
+class LanguageInfo {
+  late String key;
+  late String iconName;
+  late String label;
+
+  LanguageInfo(this.key, this.iconName, this.label);
+}
+
 class MyAppState extends State<MyApp> {
+  final String defaultLanguage = "ja";
   final String languageSettingsKey = "languageCode";
 
+  static final List<LanguageInfo> supportLanguages = <LanguageInfo>[
+    LanguageInfo("ja", "ntf_131.png", "日本語"),
+    LanguageInfo("en", "ntf_401.png", "English"),
+    LanguageInfo("vi", "ntf_140.png", "Tiếng Việt"),
+    LanguageInfo("ne", "ntf_132.png", "Nepali"),
+  ];
+
+  String selectLanguage = supportLanguages.first.key;
   Locale? locale;
 
   @override
@@ -41,7 +58,7 @@ class MyAppState extends State<MyApp> {
     String? savedLanguageCode = pref.getString(languageSettingsKey);
     if (savedLanguageCode == null) {
       // デフォルトは日本語
-      setLocale(const Locale("ja"));
+      setLocale(Locale(defaultLanguage));
     } else {
       setLocale(Locale(savedLanguageCode));
     }
@@ -68,44 +85,33 @@ class MyAppState extends State<MyApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,
       home: Builder(builder: (context) {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: Text(AppLocalizations.of(context)!.title),
-          ),
-
-          body: Center(child:
-          DropdownButton(
-            items: const[
-              DropdownMenuItem(
-                value: 'あ',
-                child: Text('あ'),
+        return Scaffold(appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(AppLocalizations.of(context)!.title),
+          actions: [
+            DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectLanguage,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectLanguage = newValue!;
+                    _changeLanguage(context, selectLanguage);
+                  });
+                },
+                items: supportLanguages.map<DropdownMenuItem<String>>((LanguageInfo info) {
+                  return DropdownMenuItem<String>(
+                    value: info.key,
+                    child: Row(children: [
+                      Image.asset(info.iconName),
+                      const SizedBox(width: 8),
+                      Text(info.label),
+                    ]),
+                  );
+                }).toList(),
               ),
-              DropdownMenuItem(
-                  value: 'い',
-                  child: Text('い'),
-              ),
-              DropdownMenuItem(
-                  value: 'う',
-                  child: Text('う'),
-              ),
-              DropdownMenuItem(
-                  value: 'え',
-                  child: Text('え'),
-              ),
-              DropdownMenuItem(
-                  value: 'お',
-                  child: Text('お'),
-              ),
-            ],
-            value: isSelectedValue,
-            onChanged: (String? value) {
-              setState(() {
-                isSelectedValue = value!;
-              });
-          )
-            },
-        );
+            ),
+          ],
+        ));
       }),
     );
   }
