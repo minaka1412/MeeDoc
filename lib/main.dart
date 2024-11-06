@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:meedoc/language.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -19,25 +20,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => MyAppState();
 }
 
-class LanguageInfo {
-  late String key;
-  late String iconName;
-  late String label;
-
-  LanguageInfo(this.key, this.iconName, this.label);
-}
-
 class MyAppState extends State<MyApp> {
-  final String defaultLanguage = "ja";
-  final String languageSettingsKey = "languageCode";
-
-  static final List<LanguageInfo> supportLanguages = <LanguageInfo>[
-    LanguageInfo("ja", "ntf_131.png", "日本語"),
-    LanguageInfo("en", "ntf_401.png", "English"),
-    LanguageInfo("vi", "ntf_140.png", "Tiếng Việt"),
-    LanguageInfo("ne", "ntf_132.png", "Nepali"),
-  ];
-
   String selectLanguage = supportLanguages.first.key;
   Locale? locale;
 
@@ -58,7 +41,7 @@ class MyAppState extends State<MyApp> {
     String? savedLanguageCode = pref.getString(languageSettingsKey);
     if (savedLanguageCode == null) {
       // デフォルトは日本語
-      setLocale(Locale(defaultLanguage));
+      setLocale(const Locale(defaultLanguage));
     } else {
       setLocale(Locale(savedLanguageCode));
     }
