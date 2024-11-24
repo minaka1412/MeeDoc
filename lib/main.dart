@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:meedoc/language.dart';
+import 'package:meedoc/restart_page.dart';
+import 'package:meedoc/start_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(const _MainPage());
 }
 
-class MyApp extends StatefulWidget {
-  static void setLocale(BuildContext context, Locale newLocale) {
-    MyAppState state = context.findAncestorStateOfType<MyAppState>()!;
-    state.setLocale(newLocale);
-  }
-
-  const MyApp({super.key});
+class _MainPage extends StatefulWidget {
+  const _MainPage({super.key});
 
   @override
-  State<MyApp> createState() => MyAppState();
+  State<_MainPage> createState() => _MainPageState();
 }
 
-class MyAppState extends State<MyApp> {
+class _MainPageState extends State<_MainPage> {
   String selectLanguage = supportLanguages.first.key;
   Locale? locale;
 
@@ -40,7 +37,6 @@ class MyAppState extends State<MyApp> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? savedLanguageCode = pref.getString(languageSettingsKey);
     if (savedLanguageCode == null) {
-      // デフォルトは日本語
       setLocale(const Locale(defaultLanguage));
     } else {
       setLocale(Locale(savedLanguageCode));
@@ -58,44 +54,62 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    String title = "MeeDoc";
+    ThemeData theme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      useMaterial3: true,
+    );
+
+    Builder builder = Builder(builder: (context) {
+      Color backgroundColor = Theme.of(context).colorScheme.inversePrimary;
+      Text titleText = Text(AppLocalizations.of(context)!.title);
+
+      onChangedDropdown(String? newValue) {
+        setState(() {
+          selectLanguage = newValue!;
+          _changeLanguage(context, selectLanguage);
+        });
+      }
+
+      AppBar appBar = AppBar(backgroundColor: backgroundColor, title: titleText, actions: [
+        DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: selectLanguage,
+            onChanged: onChangedDropdown,
+            items: supportLanguageMenuItems,
+          ),
+        ),
+      ]);
+
+      final pageTab = <Tab>[
+        Tab(text: AppLocalizations.of(context)!.tab_start, icon: const Icon(Icons.login)),
+        Tab(text: AppLocalizations.of(context)!.tab_restart, icon: const Icon(Icons.refresh)),
+      ];
+
+      return Scaffold(
+        appBar: appBar,
+        body: DefaultTabController(
+          length: pageTab.length,
+          child: Scaffold(
+            appBar: TabBar(
+              tabs: pageTab,
+            ),
+            body: const TabBarView(children: <Widget>[
+              StartPage(),
+              RestartPage(),
+            ]),
+          ),
+        ),
+      );
+    });
+
     return MaterialApp(
-      title: 'MeeDoc',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      title: title,
+      theme: theme,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,
-      home: Builder(builder: (context) {
-        return Scaffold(appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(AppLocalizations.of(context)!.title),
-          actions: [
-            DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: selectLanguage,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectLanguage = newValue!;
-                    _changeLanguage(context, selectLanguage);
-                  });
-                },
-                items: supportLanguages.map<DropdownMenuItem<String>>((LanguageInfo info) {
-                  return DropdownMenuItem<String>(
-                    value: info.key,
-                    child: Row(children: [
-                      Image.asset(info.iconName),
-                      const SizedBox(width: 8),
-                      Text(info.label),
-                    ]),
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-        ));
-      }),
+      home: builder,
     );
   }
 }

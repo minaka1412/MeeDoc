@@ -1,4 +1,6 @@
 ﻿{
     "@@locale": "ja",
-    "title": "WebExの使い方"
+    "title": "WebExの使い方",
+    "tab_start": "初回登録",
+    "tab_restart": "2回目以降"
 }
